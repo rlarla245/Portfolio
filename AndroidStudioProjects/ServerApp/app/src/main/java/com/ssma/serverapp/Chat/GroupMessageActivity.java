@@ -51,21 +51,26 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class GroupMessageActivity extends AppCompatActivity {
-    Map<String,UserModel> users = new HashMap<>();
+    // 필요한 변수 생성
+    Map<String, UserModel> users = new HashMap<>();
     String destinationRoom;
     String uid;
     EditText editText;
+    Button input_button;
 
     // 메시지 코드 관련 변수 생성
     DatabaseReference databaseReference;
     ValueEventListener valueEventListener;
+
     RecyclerView recyclerView;
 
+    // 채팅들 담는 리스트 생성
     List<ChatModel.Comment> comments = new ArrayList<>();
 
     // 연도 – 월 – 일 – 시간 – 분
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm");
 
+    // 마찬가지로 몇 명이 대화에 참여하는지 확인하는 메소드입니다.
     int peopleCount = 0;
 
     @Override
@@ -79,51 +84,65 @@ public class GroupMessageActivity extends AppCompatActivity {
         destinationRoom = getIntent().getStringExtra("destinationRoom");
         uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         editText = (EditText)findViewById(R.id.groupmessageactivity_inputtext);
+        input_button = (Button)findViewById(R.id.groupmessageactivity_inputbutton);
 
         FirebaseDatabase.getInstance().getReference().child("users").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // 데이터 내부 값들을 받아올 수 있는 코드네요.
                 // 데이터 값들을 UserModel로 캐스팅해서 불러옵니다.
-                for(DataSnapshot item : dataSnapshot.getChildren()){
-                    users.put(item.getKey(),item.getValue(UserModel.class));
+                for(DataSnapshot item : dataSnapshot.getChildren()) {
+                    // 결국, key - 유저 uid, value - 해당 유저 모델
+                    users.put(item.getKey(), item.getValue(UserModel.class));
                 }
                 init();
+
+                // 리사이클러 뷰 호출, 어댑터 설정, 레이아웃 매니저 설정
                 recyclerView = (RecyclerView)findViewById(R.id.groupmessageactivity_recyclerview);
                 recyclerView.setAdapter(new GroupMessageRecyclerViewAdapter());
                 recyclerView.setLayoutManager(new LinearLayoutManager(GroupMessageActivity.this));
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
+
             }
         });
     }
 
+    // 채팅 입력 메소드
     void init() {
-        Button input_button = (Button)findViewById(R.id.groupmessageactivity_inputbutton);
         input_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // 채팅 입력
                 ChatModel.Comment comment = new ChatModel.Comment();
                 comment.uid = uid;
                 comment.message = editText.getText().toString();
                 comment.timestamp = ServerValue.TIMESTAMP;
-                // 서버에 message_comments라는 이름으로 코멘트가 쌓이게 됩니다.
-                FirebaseDatabase.getInstance().getReference().child("chatrooms").child(destinationRoom).child("message_comments").push().setValue(comment).addOnCompleteListener(new OnCompleteListener<Void>() {
+
+                // 해당 채팅방 데이터에 "message_comments"라는 이름으로 코멘트가 쌓이게 됩니다.
+                FirebaseDatabase.getInstance().getReference().child("chatrooms").child(destinationRoom).child("message_comments")
+                        .push().setValue(comment).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
+                        // 채팅방 유저들을 불러옵니다.
                         FirebaseDatabase.getInstance().getReference().child("chatrooms").child(destinationRoom).child("users").addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                // users의 uid를 불러오고 이들의 pushToken을 찾아와서 push를 보내는 코드입니다.
+                                // 해시맵 형태로 데이터를 불러옵니다.
                                 Map<String, Boolean> map = (Map<String, Boolean>) dataSnapshot.getValue();
-                                // 한명 한명씩 불러옵니다.
-                                for(String item : map.keySet()){
-                                // 내 uid면 푸시 보내지 않음
+
+                                // 유저의 uid 값만 불러옵니다.
+                                for (String item : map.keySet()) {
+
+                                    // 내 uid면 푸시 보내지 않음
                                     if (item.equals(uid)) {
                                         continue;
                                     }
-                                    sendGcm(users.get(item).pushToken);
+                                    else{
+                                        sendGcm(users.get(item).pushToken);
+                                    }
                                 }
                                 editText.setText("");
                             }
@@ -140,6 +159,7 @@ public class GroupMessageActivity extends AppCompatActivity {
         });
     }
 
+    // 푸시 메시지 보냅니다.
     void sendGcm(String pushToken) {
         Gson gson = new Gson();
         NotificationModel notificationModel = new NotificationModel();
@@ -184,11 +204,13 @@ public class GroupMessageActivity extends AppCompatActivity {
 
     }
 
+    // 어댑터 설정
     class GroupMessageRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public GroupMessageRecyclerViewAdapter() {
             getMessageList();
         }
 
+        // 채팅 메시지 불러옵니다.
         void getMessageList() {
             databaseReference =
                     FirebaseDatabase.getInstance().getReference().child("chatrooms").child(destinationRoom).child("message_comments");

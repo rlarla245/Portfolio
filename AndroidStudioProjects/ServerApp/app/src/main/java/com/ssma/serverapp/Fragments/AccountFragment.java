@@ -49,15 +49,20 @@ public class AccountFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 UserModel userModel = dataSnapshot.getValue(UserModel.class);
 
+                // 내 프로필 이미지 불러옵니다.
                 Glide.with(view.getContext()).load(userModel.profileImageUri)
                         .apply(new RequestOptions().circleCrop()).into(imageView_profileimage);
 
+                // 내 이름 불러옵니다.
                 userName.setText(userModel.userName);
 
                 // 휴대폰 번호 출력
                 String a = new String(userModel.userPhoneNumber);
+
+                // 스트링 버퍼로 쪼개줍니다. 굳이 쪼갤 필요는 없을 것 같지만.
                 StringBuffer phoneNumber = new StringBuffer(a);
 
+                // 01050043106 이렇게 입력했으면 하이푼을 넣어 출력하기 위함입니다.
                 if (phoneNumber.length() == 11) {
                     phoneNumber.insert(3, '-');
                     phoneNumber.insert(8, '-');
@@ -84,6 +89,7 @@ public class AccountFragment extends Fragment {
             }
         });
 
+        // 이미지 버튼 호출 및 눌렀을 경우 동작 설명
         ImageButton imageButton = (ImageButton)view.findViewById(R.id.accountfragment_imagebutton_changestatusmessage);
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,7 +102,10 @@ public class AccountFragment extends Fragment {
     }
 
     void showDialog(Context context) {
+        // 새로운 레이아웃 띄우기 위함.
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+        // 레이아웃 띄워주는 인플레이터를 호출합니다.
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         View view = layoutInflater.inflate(R.layout.dialog_comment,null);
 
@@ -108,10 +117,10 @@ public class AccountFragment extends Fragment {
                 Map<String,Object> stringObjectMap = new HashMap<>();
                 String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
                 stringObjectMap.put("status_message", editText.getText().toString());
+
+                // 데이터베이스에 입력합니다.
                 FirebaseDatabase.getInstance().getReference().child("users").child(uid).updateChildren(stringObjectMap);
-
             }
-
         }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 
@@ -20,6 +21,7 @@ import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerView;
 
 import java.util.ArrayList;
+import java.util.zip.Inflater;
 
 public class MainActivity extends YouTubeBaseActivity {
 
@@ -38,6 +40,9 @@ public class MainActivity extends YouTubeBaseActivity {
             public void onClick(final View view) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle("오늘의 수업은 무엇입니까?");
+                builder.setView(R.layout.activity_dialog);
+                builder.setIcon(R.drawable.i_7);
+/*
                 builder.setItems(class_lists, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -71,7 +76,7 @@ public class MainActivity extends YouTubeBaseActivity {
                             startActivity(intent);
                         }
                     }
-                });
+                });*/
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
             }

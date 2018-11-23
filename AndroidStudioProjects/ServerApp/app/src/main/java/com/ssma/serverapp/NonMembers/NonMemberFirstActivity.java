@@ -156,7 +156,7 @@ public class NonMemberFirstActivity extends AppCompatActivity {
         });
 
         /* 이메일 주소 입력하기
-        emailaddress.setText(LoginActivity.emailTextview.getText().toString());
+        emailAddress.setText(LoginActivity.emailTextview.getText().toString());
         */
     }
 }

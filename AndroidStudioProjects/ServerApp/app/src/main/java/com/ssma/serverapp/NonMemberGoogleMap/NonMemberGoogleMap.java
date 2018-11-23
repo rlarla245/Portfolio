@@ -9,12 +9,12 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -39,6 +39,8 @@ public class NonMemberGoogleMap extends AppCompatActivity implements OnMapReadyC
     // 3d(확대) 버튼 불러오기
     private Button google_map_3D_button;
 
+    GoogleMap gMap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,18 +52,20 @@ public class NonMemberGoogleMap extends AppCompatActivity implements OnMapReadyC
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         // 툴바 설정 및 액션바, 프로젝트 이름 제거
-        android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar)findViewById(R.id.nonMemberToolbar);
+        android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar)findViewById(R.id.nonMemberToolbar2);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         // 이메일 버튼 누를 시 Toast 기능 활용
+        /*
         toolbar.findViewById(R.id.firstActivityrToolbarEmailIcon).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Toast.makeText(NonMemberGoogleMap.this, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show();
             }
         });
+        */
 
         // 툴바, 사이드 바 활용 위한 drawerlayout 설정
         final DrawerLayout drawerLayout = (DrawerLayout)findViewById(R.id.nonmember_googlemap_drawerlayout);
@@ -141,11 +145,14 @@ public class NonMemberGoogleMap extends AppCompatActivity implements OnMapReadyC
 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
+        gMap = googleMap;
         final LatLng kyunghee_university = new LatLng(37.595359, 127.051071);
 
-        googleMap.addMarker(new MarkerOptions().position(kyunghee_university).title("서비스 전략경영학회(SSMA)"));
+        gMap.getUiSettings().setZoomControlsEnabled(true);
+        gMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        gMap.addMarker(new MarkerOptions().position(kyunghee_university).title("서비스 전략경영학회(SSMA)"));
 
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(kyunghee_university, 5));
+        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(kyunghee_university, 10));
 
         google_map_3D_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,10 +164,33 @@ public class NonMemberGoogleMap extends AppCompatActivity implements OnMapReadyC
                         .bearing(10)                // Sets the orientation of the camera to east
                         .tilt(5)                   // Sets the tilt of the camera to 30 degrees
                         .build();                   // Creates a CameraPosition from the builder
-                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                gMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+
             }
         });
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        menu.add(0, 1, 0, "위성 지도");
+        menu.add(0, 2, 0, "일반 지도");
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case 1:
+                gMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                return true;
+            case 2:
+                gMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                return true;
+        }
+        return false;
+    }
+
 
     @Override
     public void onBackPressed() {

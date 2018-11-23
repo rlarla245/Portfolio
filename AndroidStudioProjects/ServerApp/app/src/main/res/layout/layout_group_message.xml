@@ -11,7 +11,7 @@
         android:background="#000000"
         android:gravity="center"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize">
+        android:layout_height="?android:attr/actionBarSize">
 
         <TextView
             android:id="@+id/groupmessageactivity_textview_who"
@@ -23,7 +23,7 @@
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
-        android:layout_marginTop="?attr/actionBarSize"
+        android:layout_marginTop="?android:attr/actionBarSize"
         android:id="@+id/groupmessageactivity_recyclerview"
         android:layout_above="@+id/groupmessageactivity_relativelayout"
         android:layout_width="match_parent"

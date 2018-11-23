@@ -35,9 +35,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FirstActivity extends AppCompatActivity {
-
+    // UI 변수들 생성
     public ImageButton emailIcon;
-    public TextView emailaddress;
+    public TextView emailAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +45,8 @@ public class FirstActivity extends AppCompatActivity {
         setContentView(R.layout.layout_first_activity);
 
         // 변수 생성
-        emailIcon = (ImageButton)findViewById(R.id.firstActivityrToolbarEmailIcon);
-        emailaddress = (TextView)findViewById(R.id.firstActivity_sidebar_emailaddress);
+        emailIcon = (ImageButton) findViewById(R.id.firstActivityrToolbarEmailIcon);
+        emailAddress = (TextView) findViewById(R.id.firstActivity_sidebar_emailaddress);
 
         // 상태 창 제거
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -59,15 +59,15 @@ public class FirstActivity extends AppCompatActivity {
             }
         });
 
-        // 툴바 불러오기 + 아이디 변경 필요
-        Toolbar toolbar = (Toolbar)findViewById(R.id.nonMemberToolbar);
+        // 툴바 불러오기
+        Toolbar toolbar = findViewById(R.id.nonMemberToolbar);
         setSupportActionBar(toolbar);
 
         // 프로젝트 명 삭제
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         // Drawer 레이아웃 호출
-        final DrawerLayout drawerLayout = (DrawerLayout)findViewById(R.id.firstactivity_drawerlayout);
+        final DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.firstactivity_drawerlayout);
 
         // 토글 기능 불러오기
         ActionBarDrawerToggle actionBarDrawerToggle =
@@ -78,8 +78,8 @@ public class FirstActivity extends AppCompatActivity {
 
         actionBarDrawerToggle.syncState();
 
-        // 내비게이션 바 불러오기
-        final NavigationView navigationView = (NavigationView)findViewById(R.id.firstActivity_firstlayout_navigationview);
+        // 좌측 내비게이션 바 불러오기
+        final NavigationView navigationView = (NavigationView) findViewById(R.id.firstActivity_firstlayout_navigationview);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -125,10 +125,13 @@ public class FirstActivity extends AppCompatActivity {
         });
 
         // 메인 화면 조정
+        // peoples 프레그먼트로 자동 전환됩니다.
         getFragmentManager().beginTransaction().replace(R.id.firstActivity_FirstLayout_main_frame, new PeoplesFragment()).commit();
 
         // Bottom NavigationView 호출 및 설정
         final BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.firstLayout_bottomnavigationview);
+
+        // 하단의 내비게이션바를 누를 경우
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -148,15 +151,31 @@ public class FirstActivity extends AppCompatActivity {
                 return false;
             }
         });
-        passPushTokenToServer();
+
+        if (FirebaseAuth.getInstance().getCurrentUser().getUid() != null) {
+            // 현재 로그인한 유저의 토큰 값을 서버에 적용합니다.
+            passPushTokenToServer();
+        }
     }
+
     void passPushTokenToServer() {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String token = FirebaseInstanceId.getInstance().getToken();
-        // Firebase는 현재 해쉬맵에 최적화되어있습니다.
-        Map<String,Object> map = new HashMap<>();
+
+        // 키 - 문자열, value - 실제 토큰을 집어 넣습니다.
+        Map<String, Object> map = new HashMap<>();
         map.put("pushToken", token);
 
+        // 해당 유저의 uid의 하위 데이터로 토큰 값을 입력합니다.
         FirebaseDatabase.getInstance().getReference().child("users").child(uid).updateChildren(map);
+    }
+
+    // 액티비티가 띄워질 경우 자동으로 실행하는 메소드입니다.
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            finish();
+        }
     }
 }

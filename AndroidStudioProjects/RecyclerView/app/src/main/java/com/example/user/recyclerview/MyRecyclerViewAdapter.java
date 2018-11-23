@@ -2,6 +2,7 @@ package com.example.user.recyclerview;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -16,8 +17,8 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public MyRecyclerViewAdapter() {
     }
 
-    int[] images = {R.drawable.i_1, R.drawable.i_2, R.drawable.i_3};
     // 이미지들을 담고 있는 이미지 배열입니다.
+    public static int[] images = {R.drawable.i_1, R.drawable.i_2, R.drawable.i_3, R.drawable.i_4};
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -31,9 +32,19 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         // 실제 이미지들을 그리드 뷰에 넣어봅시다.
         ((RowCell)holder).imageView.setImageResource(images[position]);
+
+        holder.itemView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                MainActivity.largeImage.setImageResource(images[position]);
+                return false;
+            }
+        });
+
+
     }
 
     @Override
@@ -46,7 +57,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         public ImageView imageView;
         public RowCell(View view) {
             super(view);
-            imageView = (ImageView)view.findViewById(R.id.recyclerview_item_imageview);
+            imageView = (ImageView)view.findViewById(R.id.mainactivity_recyclerview_item_imageview);
         }
     }
 }
