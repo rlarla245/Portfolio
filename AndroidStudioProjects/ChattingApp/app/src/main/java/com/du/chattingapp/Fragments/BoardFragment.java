@@ -1,5 +1,6 @@
 package com.du.chattingapp.Fragments;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
@@ -50,6 +51,7 @@ public class BoardFragment extends Fragment {
     private FirebaseAuth auth;
 
     // TimeTable 찍기
+    @SuppressLint("SimpleDateFormat")
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd");
 
     @Nullable
@@ -170,7 +172,7 @@ public class BoardFragment extends Fragment {
                         // 작성자 이름 불러오기
                         ((CustomViewHolder) holder).writerTextView.setText(userModel.userName);
                     } catch (Exception e) {
-
+//
                     }
                 }
             }

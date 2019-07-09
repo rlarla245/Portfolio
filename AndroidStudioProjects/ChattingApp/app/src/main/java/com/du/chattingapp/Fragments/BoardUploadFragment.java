@@ -38,18 +38,23 @@ public class BoardUploadFragment extends Fragment {
         View view = inflater.inflate(R.layout.boarduploadfragment, container, false);
 
         // 필요한 변수 생성
-        titleEditText = (EditText)view.findViewById(R.id.boarduploadfragment_edittext_title);
+        titleEditText = (EditText) view.findViewById(R.id.boarduploadfragment_edittext_title);
         descriptionEditText = (EditText) view.findViewById(R.id.boarduploadfragment_edittext_description);
-        uploadButton = (Button)view.findViewById(R.id.boarduploadfragment_button_uploadbutton);
+        uploadButton = (Button) view.findViewById(R.id.boarduploadfragment_button_uploadbutton);
 
         // 업로드 버튼을 누를 경우의 동작
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                upload();
-                getFragmentManager().beginTransaction().replace(R.id.firstActivity_FirstLayout_mainFrame, new BoardFragment())
-                        .commit();
-                Toast.makeText(v.getContext(), "리스트를 길게 눌러 게시판에 접속합니다.", Toast.LENGTH_SHORT).show();
+                if (titleEditText.getText().toString().trim().equals("") || descriptionEditText.getText().toString().trim().equals("")) {
+                    Toast.makeText(v.getContext(), "입력이 필요합니다.", Toast.LENGTH_SHORT).show();
+                    return;
+                } else {
+                    upload();
+                    getFragmentManager().beginTransaction().replace(R.id.firstActivity_FirstLayout_mainFrame, new BoardFragment())
+                            .commit();
+                    Toast.makeText(v.getContext(), "리스트를 길게 눌러 게시판에 접속합니다.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
